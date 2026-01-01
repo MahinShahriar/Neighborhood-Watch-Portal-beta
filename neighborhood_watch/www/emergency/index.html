@@ -1,0 +1,24 @@
+{% extends "neighborhood_watch/base.html" %}
+{% block title %}Emergency Contacts{% endblock %}
+
+{% block content %}
+<h1 class="text-2xl font-bold mb-6"> Emergency Contacts</h1>
+
+<div class="grid gap-4">
+    {% for c in contacts %}
+    <div class="p-4 rounded-xl bg-red-50 border-l-4 border-red-500">
+        <h3 class="text-lg font-semibold">{{ c.title }}</h3>
+        <p class="mt-2 text-xl font-bold text-red-600">
+            📞 {{ c.phone_number }}
+        </p>
+    </div>
+    {% endfor %}
+</div>
+
+
+
+{% if not contacts %}
+<p class="text-gray-500">No emergency contacts available.</p>
+{% endif %}
+
+{% endblock %}

@@ -1,0 +1,178 @@
+{% extends "templates/pages/base.html" %}
+{% block title %}Issue Detail – {{ issue.category }}{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto px-4 py-8 space-y-8">
+
+    <!-- Header Card -->
+    <div class="bg-white rounded-2xl shadow p-6 flex justify-between items-center">
+        <div>
+            <h2 class="text-3xl font-bold">{{ issue.category }}</h2>
+            <p class="text-sm text-gray-500">Reported on {{ issue.creation.strftime("%d %b %Y %I:%M %p") }}</p>
+        </div>
+        <span class="px-4 py-1.5 rounded-full text-sm font-semibold
+            {% if issue.status == 'Open' %}bg-red-100 text-red-700
+            {% elif issue.status == 'Assigned' %}bg-blue-100 text-blue-700
+            {% elif issue.status == 'In Progress' %}bg-yellow-100 text-yellow-700
+            {% elif issue.status == 'Resolved' %}bg-green-100 text-green-700
+            {% else %}bg-gray-200 text-gray-700{% endif %}">
+            {{ issue.status }}
+        </span>
+    </div>
+
+    <!-- Description -->
+    <div class="bg-white rounded-2xl shadow p-6">
+        <h3 class="text-xl font-semibold mb-3">Description</h3>
+        <p>{{ issue.description }}</p>
+        {% if issue.resolved_at %}
+            <p class="mt-2"><b>Resolved At:</b> {{ issue.resolved_at.strftime("%d %b %Y %I:%M %p")  }}</p>
+        {% endif %}
+        {% if issue.assigned_guard %}
+            <p class="mt-2"><b>Assigned Guard:</b> {{ issue.assigned_guard }}</p>
+        {% endif %}
+    </div>
+
+    {% if issue.photos %}
+    <div class="bg-white rounded-2xl shadow p-6">
+        <h3 class="text-xl font-semibold mb-3">Attachment</h3>
+        <img src="{{ issue.photos }}" class="rounded-xl border max-h-[400px] object-contain">
+    </div>
+    {% endif %}
+
+    <!-- REVIEW (Resident can submit rating + comment) -->
+    {% if issue.status == 'Resolved' and frappe.session.user == issue.resident and not (issue.rating and issue.review_comment) %}
+    <div class="bg-white rounded-2xl shadow p-6 max-w-xl mx-auto">
+        <h3 class="text-xl font-semibold mb-4">Review This Issue</h3>
+        <form method="PUT" action="">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+            <input type="hidden" name="rating" id="rating" required>
+            <input type="hidden" name="hellobhai" value="Hello Bhaia">
+            <!-- Star Rating -->
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Rating</label>
+                <div id="star-rating" class="flex gap-2 text-3xl cursor-pointer select-none">
+                    {% for i in range(1,6) %}
+                        <span class="star text-gray-300" data-value="{{ i }}">★</span>
+                    {% endfor %}
+                </div>
+                <p id="rating-text" class="text-sm text-gray-500 mt-2">
+                    Click a star to rate
+                </p>
+            </div>
+
+            <!-- Comments -->
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Comments</label>
+                <textarea name="review_comment" rows="4" class="w-full border rounded-md p-2"
+                    placeholder="Write your review..." required></textarea>
+            </div>
+
+            <button type="submit"
+                class="bg-blue-600 text-white px-5 py-2 rounded-md hover:bg-blue-700 transition">
+                Submit Review
+            </button>
+        </form>
+    </div>
+    {% endif %}
+
+    <!-- REVIEW DISPLAY -->
+    {% if issue.rating and issue.review_comment %}
+    <div class="bg-white rounded-2xl shadow p-6 max-w-xl mx-auto">
+        <h3 class="text-xl font-semibold mb-3">Your Review</h3>
+        <p><b>Rating:</b> {{ issue.rating }} / 5.0</p>
+        <p class="mt-2"><b>Comments:</b> {{ issue.review_comment }}</p>
+    </div>
+    {% endif %}
+
+    <!-- Activity Timeline -->
+    <div class="bg-white rounded-2xl shadow p-6">
+        <h3 class="text-xl font-semibold mb-6">Activity Timeline</h3>
+        {% if activities %}
+        <ol class="relative border-l border-gray-300 ml-3 space-y-8">
+            {% for a in activities %}
+            <li class="ml-6">
+                <span class="absolute -left-1.5 w-3 h-3 bg-blue-600 rounded-full"></span>
+                <p class="text-sm text-gray-500">{{ a.creation.strftime("%d %b %Y, %I:%M %p") }}</p>
+                {% if a.changes %}
+                    {% for c in a.changes %}
+                        {% if c[0] != "docstatus" %}
+                        <p class="mt-2 text-sm">
+                            <b>{{ c[0] }}</b> changed from
+                            <span class="text-red-600">“{{ c[1] }}”</span> to
+                            <span class="text-green-600">“{{ c[2] }}”</span>
+                        </p>
+                        {% endif %}
+                    {% endfor %}
+                {% else %}
+                    <p class="text-xs text-gray-400 italic">No field changes (created / attachment / comment)</p>
+                {% endif %}
+            </li>
+            {% endfor %}
+        </ol>
+        {% else %}
+            <p class="text-gray-500 italic">No activity yet.</p>
+        {% endif %}
+    </div>
+
+    <!-- Comments -->
+    {% if comments %}
+    <div class="bg-white rounded-2xl shadow p-6">
+        <h3 class="text-xl font-semibold mb-4">Comments</h3>
+        {% for c in comments %}
+        <div class="p-4 bg-gray-50 rounded-xl border mb-3">
+            <p>{{ c.content }}</p>
+            <p class="text-xs text-gray-500">{{ c.comment_by }} · {{ c.creation.strftime("%d %b %Y, %I:%M %p") }}</p>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const stars = document.querySelectorAll(".star");
+    const ratingInput = document.getElementById("rating");
+    const ratingText = document.getElementById("rating-text");
+    const form = document.querySelector("form");
+
+    if (!stars.length || !ratingInput || !form) return; // 🔹 Guard clause
+
+    stars.forEach(star => {
+        star.addEventListener("click", () => {
+            const value = star.dataset.value;
+            ratingInput.value = value;
+
+            stars.forEach(s => {
+                s.classList.toggle("text-yellow-400", s.dataset.value <= value);
+                s.classList.toggle("text-gray-300", s.dataset.value > value);
+                s.classList.remove("text-yellow-300");
+            });
+
+            if (ratingText) ratingText.textContent = `You rated ${value} star${value>1?'s':''}`;
+        });
+
+        star.addEventListener("mouseover", () => {
+            const value = star.dataset.value;
+            stars.forEach(s => s.classList.toggle("text-yellow-300", s.dataset.value <= value));
+        });
+
+        star.addEventListener("mouseleave", () => {
+            const selected = ratingInput.value || 0;
+            stars.forEach(s => {
+                s.classList.toggle("text-yellow-400", s.dataset.value <= selected);
+                s.classList.toggle("text-gray-300", s.dataset.value > selected);
+                s.classList.remove("text-yellow-300");
+            });
+        });
+    });
+
+    form.addEventListener("submit", e => {
+        if (!ratingInput.value) {
+            e.preventDefault();
+            alert("Please select a rating");
+        }
+    });
+});
+</script>
+{% endblock %}

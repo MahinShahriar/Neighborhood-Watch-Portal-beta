@@ -1,0 +1,39 @@
+{% extends "templates/pages/base.html" %}
+
+{% block metaquotes %}
+    <title>Neighborhood Watch - Announcements</title>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto p-6">
+
+    <h2 class="text-3xl font-semibold mb-6"> Announcements</h2>
+
+    {% if announcements %}
+        <div class="space-y-4">
+            {% for ann in announcements %}
+                <a href="/announcement/detail?name={{ ann.name }}"> 
+                    <div class="p-4 bg-white rounded shadow border-l-4
+                        {% if ann.priority == 'High' %}border-red-500{% endif %}
+                        {% if ann.priority == 'Medium' %}border-yellow-500{% endif %}
+                        {% if ann.priority == 'Low' %}border-green-500{% endif %}
+                    ">
+                        <div class="flex justify-between items-center mb-2">
+                            <h3 class="text-xl font-semibold">{{ ann.title }}</h3>
+                            {% if ann.valid_till
+                                %}
+                                <span class="text-sm text-gray-500">Expires: {{ ann.valid_till }}</span>
+                            {% endif %}
+                        </div>
+                        <p class="text-gray-700">{{ ann.description }}</p>
+                    </div>
+                </a>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="text-gray-500">No announcements at the moment.</p>
+    {% endif %}
+
+</div>
+
+{% endblock %}

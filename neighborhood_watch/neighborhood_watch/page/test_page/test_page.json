@@ -1,0 +1,23 @@
+{
+ "content": null,
+ "creation": "2025-12-08 17:53:26.017675",
+ "docstatus": 0,
+ "doctype": "Page",
+ "idx": 0,
+ "modified": "2025-12-09 14:49:57.523246",
+ "modified_by": "Administrator",
+ "module": "Neighborhood Watch",
+ "name": "test-page",
+ "owner": "Administrator",
+ "page_name": "test-page",
+ "roles": [
+  {
+   "role": "Resident"
+  }
+ ],
+ "script": null,
+ "standard": "Yes",
+ "style": null,
+ "system_page": 0,
+ "title": "Resident Page"
+}

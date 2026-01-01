@@ -1,0 +1,33 @@
+{% extends "templates/pages/base.html" %}
+{% block content %}
+
+<!-- Feed Wrapper -->
+<div class="flex justify-center">
+    <div id="feed" class="w-full max-w-2xl space-y-4">
+        {% for post in posts %}
+        <a href="/community-feed/detail?name={{ post.name }}"
+           class="block bg-white border rounded-xl p-4 shadow-sm hover:shadow-md hover:bg-gray-50 transition">
+
+            <!-- Header -->
+            <div class="flex justify-between items-center mb-2">
+                <span class="font-semibold text-gray-800">{{ post.posted_by }}</span>
+                <span class="text-xs text-gray-400">Created: {{ post.creation.strftime("%d %b %Y %I:%M %p") }}</span>
+            </div>
+
+            <!-- Message -->
+            <p class="text-gray-700 mb-3 leading-relaxed">
+                {{ post.message }}
+            </p>
+
+            <!-- Attachment (optional) -->
+            {% if post.attachments %}
+                <img src="{{ post.attachments }}"
+                     class="w-80% max-h-70 object-cover rounded-lg">
+            {% endif %}
+            
+        </a>
+        {% endfor %}
+    </div>
+</div>
+
+{% endblock %}

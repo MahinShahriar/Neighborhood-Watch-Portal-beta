@@ -125,12 +125,28 @@ app_license = "mit"
 # }
 #
 # has_permission = {
-# 	"Event": "frappe.desk.doctype.event.event.has_permission",
+# 	"Event": "frappe.desk.doctype.event.event.has_permission", 
 # }
 
 # Document Events
 # ---------------
 # Hook on document methods and events
+doc_events = {
+    "Issue Report": {
+        "after_insert": "neighborhood_watch.api.issue_hooks.notify_admin_new_issue",
+        "validate": "neighborhood_watch.api.issue_hooks.validate_issue",
+        "on_update_after_submit": "neighborhood_watch.api.issue_hooks.set_resolved_time",
+        "on_trash": "neighborhood_watch.api.cleanup.delete_attachments",
+
+    },
+
+    "Community Feed": {
+        "after_insert": ["neighborhood_watch.api.feed_hooks.after_insert",
+                         "neighborhood_watch.api.issue_hooks.notify_status_change"],
+
+        "on__trash": "neighborhood_watch.api.cleanup.delete_attachments",
+    },  
+}
 
 # doc_events = {
 # 	"*": {
@@ -142,7 +158,11 @@ app_license = "mit"
 
 # Scheduled Tasks
 # ---------------
-
+scheduler_events = {
+    "daily": [
+        "neighborhood_watch.api.cleanup.delete_expired_announcements"
+    ]
+}
 # scheduler_events = {
 # 	"all": [
 # 		"neighborhood_watch.tasks.all"
@@ -160,6 +180,15 @@ app_license = "mit"
 # 		"neighborhood_watch.tasks.monthly"
 # 	],
 # }
+
+
+# Notifications
+# ---------------
+# website_context = {
+#     "notifications": "neighborhood_watch.utils.notifications.get_notifications"
+# }
+
+
 
 # Testing
 # -------

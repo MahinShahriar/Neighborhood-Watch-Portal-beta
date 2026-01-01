@@ -1,0 +1,41 @@
+{% extends "templates/pages/base.html" %}
+
+{% block metaquotes %}
+<meta name="csrf-token" content="{{ csrf_token }}">
+{% endblock %}
+
+{% block title %}Community Feed Detail{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto p-6">
+
+    <h2 class="text-3xl font-semibold mb-6">Community Feed Detail</h2>
+
+    <div class="p-4 bg-white shadow rounded">
+        <b>{{ post.posted_by }}</b><br>
+        <p class="mt-2">{{ post.message }}</p>
+
+        {% if post.attachments %}
+   
+        <div class="bg-white rounded-2xl shadow p-6">
+            <h3 class="text-xl font-semibold mb-3">Attachment</h3>
+            <img src="{{ post.attachments }}" 
+                 alt="Attachment"
+                class="rounded-xl border max-h-[400px] object-contain">
+        </div>
+   
+        {% endif %}
+
+        <div class="mt-4 text-gray-500 text-sm">
+            Posted on: {{ post.creation }}
+        </div>
+    </div>
+
+    <div class="mt-6">
+        <a href="/community-feed"
+           class="inline-block bg-gray-200 text-black px-7 py-1 rounded-lg shadow hover:bg-gray-300">
+           Back to Community Feed
+        </a>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,26 @@
+{% extends "templates/pages/base.html" %}
+
+{% block metaquotes %}
+    <title>Neighborhood Watch - Announcement Detail</title>
+{% endblock %}
+
+{% block content %}
+
+
+
+<div class="max-w-4xl mx-auto p-6 bg-white rounded shadow">
+
+    <h2 class="text-3xl font-semibold mb-4">{{ announcement.title }}</h2>
+
+    <div class="text-gray-600 mb-6">
+        <span class="font-medium">Priority:</span> {{ announcement.priority }}
+        {% if announcement.valid_till %}
+            | <span class="font-medium">Valid Till:</span> {{ announcement.valid_till }}
+        {% endif %}
+    </div>
+
+    <div class="text-gray-800 whitespace-pre-line">
+        {{ announcement.description }}
+    </div>
+</div>
+{% endblock %}

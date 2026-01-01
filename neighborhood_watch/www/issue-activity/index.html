@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Issue Activity</title>
+<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-50">
+
+<div class="max-w-3xl mx-auto p-6">
+    <h2 class="text-3xl font-semibold mb-6">Issue Activity</h2>
+
+    {% if activities %}
+        <div class="space-y-4">
+            {% for a in activities %}
+            <div class="p-4 bg-white rounded shadow">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="font-semibold">{{ a.owner }}</span>
+                    <span class="text-gray-500 text-sm">{{ a.modified }}</span>
+                </div>
+                <p class="text-gray-700">{{ a.content }}</p>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="text-gray-500">No activity found for your issues.</p>
+    {% endif %}
+</div>
+
+</body>
+</html>
